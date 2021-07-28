@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      button {  margin-bottom: 3em;}
+      .button-basic {	background-color: #4b5052;	border: 2px solid black;	color: whitesmoke;	padding: 1em 1.5em;	text-align: center;	text-decoration: none;	font-size: 1em;	display: inline-block;	width: 22%; /* to test the test-align property */}
+      ul li { padding-bottom: 4px; }
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body style="font-family: calibri,arial,sans-serif">
+    <p>Get help with this sheet:
+      <ul><?!= sheetOnlyLinksHTML?></ul>
+    </p>
+    <p>Other common help links:
+      <ul><?!= otherCommonLinksHTML?></ul>
+    </p>
+    <p>Not what you are looking for?:
+      <ul><?!= helpCentreLinkHTML?></ul>
+    </p>
+    <input class="button-basic" type="button" value="Close" onclick="google.script.host.close();" />
+  </body>
+</html>

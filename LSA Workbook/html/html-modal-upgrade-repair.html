@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: calibri,arial,sans-serif; margin: 0px;}
+      button { margin-bottom: 3em;}
+      .button-basic {	background-color: #278845;	border: 2px solid black;	color: whitesmoke;	padding: 1em 1.5em;	text-align: center;	text-decoration: none;	font-size: 1em;	display: inline-block;	width: 120px; /* to test the test-align property */}
+      input.noclick { background-color: #BBBBBB; }
+      ul li { padding-bottom: 4px; }
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      .buttoncell { width: 125px; }
+
+      .success { color: #006600; } 
+      .success a { color: #0000cc; text-decoration: underline; }
+      .success a:hover { color: #990099; }
+      .success a:visited { color: #0000cc; }
+      .neutral { color: #cc6600; }
+      .failure { color: #800000; }
+    </style>
+
+    
+    <style>
+
+      #startnotification { display: none; }       #startnotification.show { display: block; }
+      #upgradingnotification { display: none; }   #upgradingnotification.show { display: block; }
+      #upgradednotification { display: none; }    #upgradednotification.show { display: block; }
+      #deletingnotification { display: none; }    #deletingnotification.show { display: block; }
+
+      #opennewworkbookprompt.highlight { color: red; font-weight: 600; }
+      #opennewworkbookprompt.highlight a { color: #990033; }
+
+      #upgradeButtonCell { display: none; }       #upgradeButtonCell.show { display: inline-block; }
+      #closeButtonCell { display: none; }         #closeButtonCell.show { display: inline-block; }
+      #finishButtonCell { display: none; }        #finishButtonCell.show { display: inline-block; }
+      
+      div.notification td.left {
+        padding-left: 30px; 
+        vertical-align: top;
+      }
+      div.notification td.right {
+        font-size: 20px; padding-left: 50px;
+      }
+
+      .bookmarkYes{ color: #00dd19; } .bookmarkYes a { color: #00bb14; text-decoration: underline; } 
+      .bookmarkYes a:hover { color: #009909; } .bookmarkYes a:visited { color: #00bb14; }
+      .bookmarkNo{  color: #ff0000; } .bookmarkNo a { color: #cc0000; text-decoration: underline;} 
+      .bookmarkNo a:hover { color: #990000; } .bookmarkNo a:visited { color: #cc0000; }
+    </style>
+  </head>
+  <body>
+<? 
+let beforeImageId = null, duringImageId = null, afterImageId = null;
+let imgWid = -1, imgHgt = -1;
+if( upgradeNotRepair ) { 
+  beforeImageId = "1QAQHUDlKXsM5bCEjOU4Cfb86d9pCwI6U";
+  duringImageId = "1R6kLVu2VuhwS0DPNBIsW6O2dplM1TyVQ";
+  afterImageId  = "1UkfsBvQmSR8-_cqZimSkEfBtfq_I8PPI";
+  imgWid = 200;
+  imgHgt =  150;
+  ?>
+    <p>A newer version is available!</p>
+    <p>Your version is: <?= thisVersion ?><br />Latest version is: <?= newVersion ?></p>
+    <p style="margin-bottom: 8px;">During the upgrade, this workbook will be deleted and replaced by a new, upgraded one, so please
+  <?
+} else {
+  beforeImageId = "13Eccu58Q-MXjxduYuH2CA9HUjShRCYJ5";
+  duringImageId = "1V-t3CpqUhmUwbx1-P2fS_9L34vsaqb8m";
+  afterImageId  = "124bm71_typ9_dlvi5Ut89inPUSLAdiSA";
+  imgWid = 178;
+  imgHgt =  150;
+  ?>
+    <p>You are on the latest version so you can repair your Workbook.</p>
+    <p>Repairing will resolve any formatting issues or broken formulas on your Workbook. You may also have been asked to repair by your manager or the support team.</p>
+    <p style="margin-bottom: 8px;">During the upgrade, this workbook will be deleted and replaced by a new, repaired one, so please
+  <?
+}
+?>
+      <span class="bookmarkYes">bookmark <a target="_blank" href="<?= lsaDirectoryUrl ?>">your LSA Folder</a></span>, 
+      <span class="bookmarkNo">and not <a target="_blank" href="<?= thisWorkbookUrl ?>">your workbook</a> itself</span>.</p>
+      <div style="text-align: center"><img src="https://drive.google.com/uc?export=view&id=1viQUYYbXrMWFlDI1K5zf7VwlD_SYT2LE" height="61" width="362" /></div>
+    <p>Your new Workbook will contain all of your data so don't worry, nothing will be lost :)</p>
+
+    <div class="notification" style="height: 180px">
+      <span id="startnotification" class="show" width="100%">
+        <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="left">
+            <img src="https://drive.google.com/uc?export=view&id=<?= beforeImageId ?>" height="<?= imgHgt ?>" width="<?= imgWid ?>" />
+          </td>
+          <td class="right"></td>
+        </tr>
+        </table>
+      </span>
+      <span id="upgradingnotification" width="100%">
+        <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="left">
+            <img src="https://drive.google.com/uc?export=view&id=<?= duringImageId ?>" height="<?= imgHgt ?>" width="<?= imgWid ?>" />
+          </td>
+          <td class="right neutral"><?= upgradeNotRepair ? "Upgrading" : "Repairing" ?>, please wait...<br />it can take a while</td>
+        </tr>
+        </table>
+      </span>
+      <span id="upgradednotification" width="100%">
+        <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="left">
+            <img src="https://drive.google.com/uc?export=view&id=<?= afterImageId ?>" height="<?= imgHgt ?>" width="<?= imgWid ?>" />
+          </td>
+          <td class="right success">
+            <b><?= upgradeNotRepair ? "Upgrade" : "Repair" ?> Successful</b><br /><br />
+            <span id="opennewworkbookprompt">1) Open your <a id="newworkbookanchor" href="#" target="_blank" onclick="newWorkbookLinkClicked = true; return true;">new workbook</a></span><br />
+            2) Come back here to complete<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the <?= upgradeNotRepair ? "upgrade" : "repair" ?> by deleting<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this workbook
+          </td>
+        </tr>
+        </table>
+      </span>
+      <span id="deletingnotification" width="100%" style="background-color: black; height: 160px;">
+        <table cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="left" style="padding-top: 13px; padding-left: 11px;">
+            <img src="https://drive.google.com/uc?export=view&id=1JbRy7JFPauzh4yJMXwGgiq4Irx88hWWI" height="135" width="240" />
+          </td>
+          <td class="right failure">Deleting this workbook.<br />Just close this tab once deleted.</td>
+        </tr>
+        </table>
+      </span>
+    </div>
+    
+    <table cellpadding="0" cellpsacing ="0" style="width: 100%">
+    <tr>
+      <td id="upgradeButtonCell" class="buttoncell show">
+<? if( upgradeNotRepair ) { ?>
+        <input id="upgradeButton" class="button-basic" type="button" value="Upgrade" onclick="upgradeWorkbook( true );" />
+<? } else { ?>
+        <input id="upgradeButton" class="button-basic" type="button" value="Repair" onclick="upgradeWorkbook( false );" />
+<? } ?>
+      </td>
+      <td id="closeButtonCell" class="buttoncell show">
+        <input id="closeButton" class="button-basic show" type="button" value="Close" onclick="google.script.host.close();" />
+      </td>
+      <td id="finishButtonCell" class="buttoncell">
+        <input id="finishButton" class="button-basic" style="width: 250px" type="button" value="Complete <?= upgradeNotRepair ? 'Upgrade' : 'Repair' ?>" onclick="finishUpgrade();" />
+      </td>
+    </tr>
+    </table>
+
+    <script>
+      var newWorkbookLinkClicked = false;
+
+      function upgradeWorkbook( upgradeNotRepair ) { 
+        document.getElementById( "upgradeButton" ).disabled = true;
+        document.getElementById( "upgradeButton" ).classList.toggle('noclick');
+        document.getElementById( "closeButton" ).disabled = true;
+        document.getElementById( "closeButton" ).classList.toggle('noclick');
+        
+        document.getElementById( "startnotification" ).classList.toggle('show');
+        document.getElementById( "upgradingnotification" ).classList.toggle('show');
+        if( upgradeNotRepair ) {
+          google.script.run.withSuccessHandler(onSuccess_UpgradeRepair).withFailureHandler(onFailure_Upgrade).UpgradeWorkbook();
+        }
+        else {
+          google.script.run.withSuccessHandler(onSuccess_UpgradeRepair).withFailureHandler(onFailure_Repair).RepairWorkbook();
+        }
+      }
+
+      function onSuccess_UpgradeRepair( upgradedFilesUrl ) {
+        document.getElementById( "newworkbookanchor" ).setAttribute("href", upgradedFilesUrl);
+        document.getElementById( "upgradingnotification" ).classList.toggle('show');
+        document.getElementById( "upgradednotification" ).classList.toggle('show');
+        document.getElementById( "upgradeButtonCell" ).classList.toggle('show');
+        document.getElementById( "closeButtonCell" ).classList.toggle('show');
+        document.getElementById( "finishButtonCell" ).classList.toggle('show');
+      }
+
+      function finishUpgrade() {
+        if( !newWorkbookLinkClicked ) {
+          document.getElementById( "opennewworkbookprompt" ).classList.toggle('highlight');
+          setTimeout( function() { document.getElementById( "opennewworkbookprompt" ).classList.toggle('highlight'); }, 2000 );
+        }
+        else {
+          document.getElementById( "upgradednotification" ).classList.toggle('show');
+          document.getElementById( "deletingnotification" ).classList.toggle('show');
+          document.getElementById( "finishButton" ).disabled = true;
+          document.getElementById( "finishButton" ).classList.toggle('noclick');
+          google.script.run.withSuccessHandler(onSuccess_Delete).withFailureHandler(onFailure_Delete).TrashThisFileAfterUpgrade();
+        }
+      }
+ 
+      function onSuccess_Delete() {
+        google.script.host.close();
+      }  
+
+      function onFailure_Upgrade() {
+        alert( getOnFailErrorMessage( error, "This workbook could not be upgraded.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to upgrade you manually as it is often important that you are using the latest version" ) );
+        google.script.host.close();
+      }
+      function onFailure_Repair() {
+        alert( getOnFailErrorMessage( error, "This workbook could not be repaired.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to repair you manually" ) );
+        google.script.host.close();
+      }
+      function onFailure_Delete() {
+        alert( getOnFailErrorMessage( error, "This workbook could not be moved to the Trash.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to inform them.\n\nPlease then refresh this page in your browser and follow the instructions on how to delete manually" ) );
+        google.script.host.close();
+      }
+
+      function getOnFailErrorMessage( error, fallbackMessage ) {
+        let errorFeedbackString = fallbackMessage + "\n\nError Message:\n" + error;
+        if( (typeof error).toLowerCase() == 'string' && error.includes("PERMISSION_DENIED") ) {
+          errorFeedbackString = "This action failed because it did not recognise the logged in user\n\nThe most common cause of this issue is being logged in to more than one google account in the same browser\n\nDid the person using the computer before you not log out of the PC?\nDo you have your personal emails open in the same browser?\n\nThis issue only happens in these popup windows on not on the main workbook.\n\nTry using another browser, or 'Incognito Mode' (sometimes called 'Private Browsing Mode') and this should resolve your issue.\n\nOr email support if you srill cant get it working.";
+        }
+        return errorFeedbackString;
+      }
+    </script>
+
+  </body>
+</html>

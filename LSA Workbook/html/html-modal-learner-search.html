@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!= include('html/html-inc-modal.css') ?>
+
+    <style>
+      #searchResults { min-height: 105px; display: none;} 
+      #searchResults.show { display: block; }
+      #pleaseWait {height: 125px;}
+    </style>
+  </head>
+  <body onload="loggedInUsersCheck();">
+
+    <div class="stdform">
+    <div class="stdform-heading">Search for the Learner to add</div>
+      <form action="#" name="learnersearch" method="post">
+        <label for="datano">
+          <span>Data Number</span>
+          <input type="text" class="input-field" name="datano" value="" />
+        </label>
+        <label for="forename">
+          <span>Forename</span>
+          <input type="text" class="input-field" name="forename" value="" />
+        </label>
+        <label for="surname">
+          <span>Surname</span>
+          <input type="text" class="input-field" name="surname" value="" />
+        </label>
+        <label>
+          <span> </span>
+          <input id="searchButton" onclick="startLearnerSearch();" type="submit" value="Search" />
+        </label>
+      </form>
+    </div>
+    </div>
+
+    <div id="pleaseWait">
+      <div class="content">
+        <img src="https://drive.google.com/uc?export=view&id=1Ptm483UXSQPjHYEGN0d5SunpyzXgSz4R" height="52" width="84" id="pleaseWaitImg" />
+        <div id="pleaseWaitText" class="text"></div>
+      </div>
+    </div>
+
+    <div id="searchResults" class="wrapper">
+      
+    </div>
+
+    <table class="bottomButtons">
+    <tr>
+      <td id="addLearnerButtonCell" class="">
+        <input id="addLearnerButton" class="button-basic" type="button" value="Add Learner" onclick="addLearner();" />
+      </td>
+      <td id="closeButtonCell" class="show">
+        <input id="closeButton" class="button-basic show" type="button" value="Close" onclick="google.script.host.close();" />
+      </td>
+    </tr>
+    </table>
+
+    <script>
+      var lastSearchResults = null;
+
+      function startLearnerSearch() {
+        var searchForm = document.forms.namedItem("learnersearch");
+        var datano = searchForm.elements.namedItem("datano").value;
+        var forename = searchForm.elements.namedItem("forename").value;
+        var surname = searchForm.elements.namedItem("surname").value;
+
+        document.getElementById( "searchResults" ).classList.remove( "show" );
+        showPleaseWait( "Searching Master Database" );
+        setButtonProperties( "searchButton", false );
+        setButtonProperties( "addLearnerButton", null, false );
+
+        google.script.run
+            .withSuccessHandler(onSuccess_Search)
+            .withFailureHandler(onFailure)
+            .MasterLearnerSearch( datano, forename, surname, null );
+      }
+
+      function onSuccess_Search( learnerObjectArray ) {
+
+        lastSearchResults = learnerObjectArray;
+        setButtonProperties( "addLearnerButton", ( learnerObjectArray.length > 0 ), true );
+        setButtonProperties( "searchButton", true );
+
+        let searchResultsTableHTML = convertLearnerObjectsToHTML( learnerObjectArray );
+        document.getElementById( "searchResults" ).innerHTML = searchResultsTableHTML;
+        document.getElementById( "searchResults" ).classList.add( "show" );
+        collapsePleaseWait();
+      }
+
+      function addLearner() {
+
+        //find which radion was selected
+        selectedLearnerId = document.querySelector('input[name="learner"]:checked').value;
+
+        //now find the learner in the most recent search results array
+        selectedLearner = null;
+        for( let i=0; i<lastSearchResults.length; i++ ) {
+          if( ""+lastSearchResults[i].LEARNER_ID == selectedLearnerId ) {
+            selectedLearner = lastSearchResults[i];
+          }
+        }
+
+        //validation check
+        if( selectedLearner == null ) {
+          alert('Couldnt find the The Selected Learner ID ('+selectedLearnerId+') in the latest '+lastSearchResults.length+
+                ' search results. Please contact Support.');
+        }
+
+        document.getElementById( "searchResults" ).classList.remove( "show" );
+        showPleaseWait( "Adding Learner record" );
+
+        setButtonProperties( "searchButton", false );
+        setButtonProperties( "addLearnerButton", false );
+        setButtonProperties( "closeButton", false );
+
+        google.script.run
+            .withSuccessHandler(onSuccess_AddLearner)
+            .withFailureHandler(onFailure)
+            .AddOrEditLearnerOnChildLearnerSheet( selectedLearner );
+      }
+
+      function onSuccess_AddLearner() {
+        google.script.host.close();
+      }
+
+      function onFailure( error ) {
+        hidePleaseWait();
+        let errorFeedbackString = "This action failed for an unknown reason.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to inform them\n\nError Message:\n" + error;
+        if( (typeof error).toLowerCase() == 'string' && error.includes("PERMISSION_DENIED") ) {
+          errorFeedbackString = "This action failed because it did not recognise the logged in user\n\nThe most common cause of this issue is being logged in to more than one google account in the same browser\n\nDid the person using the computer before you not log out of the PC?\nDo you have your personal emails open in the same browser?\n\nThis issue only happens in these popup windows on not on the main workbook.\n\nTry using another browser, or 'Incognito Mode' (sometimes called 'Private Browsing Mode') and this should resolve your issue.\n\nOr email support if these things do not work.";
+        }
+        alert( "This action failed for an unknown reason.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to inform them\n\nError Message:\n" + error );
+        setButtonProperties( "addLearnerButton", true );
+        setButtonProperties( "closeButton", true );
+        setButtonProperties( "searchButton", true );
+      }
+
+      function convertLearnerObjectsToHTML( learnerObjectArray ) {
+        let htmlToReturn = null;
+        searchResultsByLearnerId = new Array();
+
+        if( learnerObjectArray.length == 0 ) {
+          htmlToReturn = "<div style=\"text-align: center;\"><br />Sorry, no learners matched.<br /><br /></div>";
+        }
+        else {
+          htmlToReturn = "<div class=\"table\"><div class=\"row header green\"><div class=\"cell\">Choose</div><div class=\"cell\">Forename</div><div class=\"cell\">Surname</div><div class=\"cell\">Data Number</div></div>";
+          for( var i=0; i<learnerObjectArray.length; i++ ) {
+            htmlToReturn += "<div class=\"row\">" + 
+            "<div class=\"cell\" data-title=\"Choose\"><input type=\"radio\" name=\"learner\" value=\""+learnerObjectArray[i].LEARNER_ID+"\""+((i==0)?" checked=\"checked\"":"")+"></div>" +
+            "<div class=\"cell\" data-title=\"Forename\">"+
+              learnerObjectArray[i].FORENAME + ( (learnerObjectArray[i].NICKNAME=="") ? "" : " ("+learnerObjectArray[i].NICKNAME+")" ) +
+            "</div>" +
+            "<div class=\"cell\" data-title=\"Surname\">"+learnerObjectArray[i].SURNAME+"</div>" +
+            "<div class=\"cell\" data-title=\"Data Number\">"+learnerObjectArray[i].LEARNER_ID+"</div>" +
+            "</div>";
+          }
+          htmlToReturn += "</div></div>";
+        }
+        return htmlToReturn;
+      }
+    </script>
+
+    <?!= include('html/html-inc-modal.js') ?>
+
+  </body>
+</html>

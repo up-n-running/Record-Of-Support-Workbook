@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!= include('html/html-inc-modal.css') ?>
+
+    <style>
+      #pleaseWait {height: 72px;}
+      #validation {min-height: 72px;}
+    </style>
+  </head>
+  <body onload="loggedInUsersCheck();">
+
+    <div class="stdform">
+    <div class="stdform-heading"><?= ( rowNum < 0 ) ? "Add a" : "Edit" ?> Lesson</div>
+      <form action="#" name="addeditlessonform" method="post">
+        <label for="lessonname">
+          <span>Lesson Name <span class="required">*</span></span>
+          <input type="text" class="input-field" name="lessonname" value="<?= lessonName ?>" />
+        </label>
+        <label>
+          <span> </span>
+          <input id="save" onclick="addEditLesson();" type="submit" value="<?= (rowNum < 0) ? "Add" : "Edit" ?> Lesson" />
+        </label>
+      </form>
+    </div>
+    </div>
+
+    <div id="pleaseWait">
+      <div class="content">
+        <img src="https://drive.google.com/uc?export=view&id=1Ptm483UXSQPjHYEGN0d5SunpyzXgSz4R" height="52" width="84" id="pleaseWaitImg" />
+        <div id="pleaseWaitText" class="text"></div>
+      </div>
+    </div>
+
+    <div id="validation">
+      <ul id="errorMessages"></ul>
+    </div>
+
+    <table class="bottomButtons">
+    <tr>
+      <td id="closeButtonCell" class="show">
+        <input id="closeButton" type="button" value="Close" onclick="google.script.host.close();" />
+      </td>
+    </tr>
+    </table>
+
+    <script>
+      var lastSearchResults = null;
+
+      function addEditLesson() {
+        var form = document.forms.namedItem("addeditlessonform");
+        var rowNum = <?= rowNum ?>;
+        var lessonName = form.elements.namedItem("lessonname").value;
+      
+        if( validateForm( lessonName ) ) {
+          showPleaseWait( "<?= (rowNum < 0) ? "Adding" : "Updating" ?> lesson record" )
+          setButtonProperties( "closeButton", false );
+          setButtonProperties( "save", false );
+
+          google.script.run
+              .withSuccessHandler(onSuccess_addEditLearner)
+              .withFailureHandler(onFailure)
+              .AddOrEditLesson( rowNum, lessonName );
+        }
+      }
+
+      function onSuccess_addEditLearner() {
+        google.script.host.close();
+      }
+
+      function onFailure( error ) {
+        hidePleaseWait();
+        alert( "This action failed for an unknown reason.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to inform them\n\nError Message:\n" + error );
+        setButtonProperties( "closeButton", true );
+        setButtonProperties( "save", true );
+      }
+
+      function bespokeValidation( lessonName ) {
+        let errorArray = new Array();
+        if( lessonName.trim() == "" ) {
+          errorArray.push( "Please enter a Lesson Name" );
+        }
+        return errorArray;
+      }
+    </script>
+
+    <?!= include('html/html-inc-modal.js') ?>
+
+    </body>
+</html>

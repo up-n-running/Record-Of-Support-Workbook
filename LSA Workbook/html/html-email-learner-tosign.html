@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      .para {
+        font-weight: 400;
+        font-size: 16px;
+      }    
+      .cell {
+        height: 160px;
+        background-color: lavender; 
+      }
+      .instruction {
+        width: 400px;
+        vertical-align: middle;
+        font-weight: 500;
+        font-size: 16px;
+        padding-left: 16px; 
+        border: 1px;     
+      }
+      .helpimage {
+        width: 350px;
+        padding-right: 10px;
+        vertical-align: top;
+        background-color: lavender;
+        border: 1px;     
+      }
+    </style>
+  </head>
+  <body>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td width="465">
+        <p class="para">Hello <?= friendlyLearnerName ?>, <?= introText ?></p>
+<? if( signType == "PDF" ) { ?>  
+        <p class="para">Please use <b>your computer</b> and your mouse to sign.</p>
+        <p class="para">You cannot use your mobile or tablet to sign, sorry.</p>
+<? }
+if( signType == "Stored" ) { ?>
+        <p class="para">You can use your computer, phone or tablet to sign,</p>
+<? } ?>
+        <p class="para">Many thanks,</p>
+        <p class="para"><?= recordLSAName ?>,</p>
+      </td>
+      <td width="300">
+<? if( helpVideoURL ) { ?>
+        <a target="_blank" href="<?= helpVideoURL ?>"><img width="300" height="167" src="cid:helpVideoThumb" /></a>
+<? } else { ?>
+        <p>&nbsp;</p>
+<? } ?>
+      </td>
+    </tr>
+<? 
+if( learnersPreferredSignType == "Stored" && signType != "Stored" ) { 
+  ?>
+    <tr>
+      <td colspan="2">
+        <p class="para">First, please <a target="_blank" href="<?= storeSignatureLinkURL ?>">store your signature with us</a> to make future Records of Support much easier to sign.</p>
+      </td>
+    </tr>
+  <? 
+} 
+if( newFilesIntro ) { 
+  ?>
+    <tr>
+      <td colspan="2">
+        <p class="para"><?= newFilesIntro ?>
+        <ol>
+  <?
+  for( let file of newFiles ) {
+    ?>
+          <li class="para"><a target="_blank" href="<?= file.url ?>"><?= 
+                Utilities.formatDate(file.lessonTimesObj.start, GLOBAL_CONSTANTS.TIMEZONE, "dd/MM/yyy" ) 
+            ?> - <?= 
+                file.lessonName 
+            ?> (<?= 
+                Utilities.formatDate(file.lessonTimesObj.start, GLOBAL_CONSTANTS.TIMEZONE, "hh:mma" )
+            ?> - <?= 
+                Utilities.formatDate(file.lessonTimesObj.end, GLOBAL_CONSTANTS.TIMEZONE, "hh:mma" )
+            ?>)</a>
+          </li>
+    <?
+  }
+  ?>
+        </ol>
+        </p>
+      </td>
+    </tr>
+  <? 
+} 
+if( oldFilesIntro ) { 
+  ?>
+    <tr>
+      <td colspan="2">
+        <p class="para"><?= oldFilesIntro ?>
+        <ol>
+  <?
+  for( let file of oldFiles ) {
+    ?>
+          <li class="para"><a target="_blank" href="<?= file.url ?>"><?= 
+                Utilities.formatDate(file.lessonTimesObj.start, GLOBAL_CONSTANTS.TIMEZONE, "dd/MM/yyy" ) 
+            ?> - <?= 
+                file.lessonName 
+            ?> (<?= 
+                Utilities.formatDate(file.lessonTimesObj.start, GLOBAL_CONSTANTS.TIMEZONE, "hh:mma" )
+            ?> - <?= 
+                Utilities.formatDate(file.lessonTimesObj.end, GLOBAL_CONSTANTS.TIMEZONE, "hh:mma" )
+            ?>)</a>
+          </li>
+    <?
+  }
+  ?>
+        </ol>
+        </p>
+      </td>
+    </tr>
+  <? 
+}
+if( learnersPreferredSignType == "Stored" && signType == "Stored" ) { 
+  ?>
+    <tr>
+      <td colspan="2">
+        <p class="para">Don't like your stored signature? <a target="_blank" href="<?= storeSignatureLinkURL ?>">Change it</a>.</p>
+      </td>
+    </tr>
+  <? 
+} 
+?>
+    </table>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr style="height: 5px;">
+      <td class="cell" style="height: 10px;"></td>
+      <td class="cell" style="height: 10px;"></td>
+    </tr>   
+    <tr style="height: 20px;">
+      <td class="cell" colspan="2" style="font-weight: 600; text-align: center; font-size: 20px">How to sign your Records of Support</td>
+    </tr>  
+    <tr style="height: 5px;">
+      <td class="cell" style="height: 10px;"></td>
+      <td class="cell" style="height: 10px;"></td>
+    </tr>
+<? if( signType == "PDF" ) { ?>      
+    <tr>
+      <td class="cell instruction">1. Click on a link above. It will open in a new tab</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp1" /></a></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">2. At the top, click 'Open With' --> 'Dochub'<br />to open <i>another</i> new tab</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp2" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">3. Click the 'Freehand Drawing Tool' pen icon</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp3" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">4. Scroll Down and sign the form with your mouse</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp4" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">5. Click 'Download / Export' at the top</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp5" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">6. Click 'G Drive'</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp6" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">7. Click 'Export to G Drive'.<br />Now you can close these 2 new tabs</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp7" /></td>
+    </tr>
+<? }
+   if( signType == "Stored" ) { ?>   
+    <tr>
+      <td class="cell instruction">1. Click on a link above. It will open in a new tab</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:storedHelp1" /></a></td>
+    </tr>
+    <!--
+    <tr>
+      <td class="cell instruction">2. If you cant edit it, click 'Open With' -> 'Google Sheets'<br />to open <i>another</i> new tab</td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:pdfHelp2" /></td>
+    </tr>
+    -->
+    <tr>
+      <td class="cell instruction">2. Scroll down and <i>double tap</i> the first yellow box<br />
+        then give me a mark out of 10.<br />
+        <br />
+        Your signature will load automatically
+      </td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:storedHelp3" /></td>
+    </tr>
+    <tr>
+      <td class="cell instruction">3. Double tap the second yellow box and type your comments<br />
+        <br />
+        Now you can close this new tab and go back to your email
+      </td>
+      <td class="cell helpimage"><img width="350" height="150" src="cid:storedHelp4" /></td>
+    </tr>
+<? } ?>
+    </table>
+    <span style="opacity: 0; font-size: 5px"><?= Math.random() ?></span>
+  </body>
+</html>

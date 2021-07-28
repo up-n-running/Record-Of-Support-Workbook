@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <?!= include('html/html-inc-modal.css') ?>
+
+    <style>
+      #pleaseWait {height: 72px;}
+      #validation {min-height: 72px;}
+    </style>
+  </head>
+  <body onload="loggedInUsersCheck();">
+<?
+  learner = ( rowNum >= 0 ) ? learner : {
+    FORENAME   : "",
+    NICKNAME   : "",
+    SURNAME    : "",
+    LEARNER_ID : "",
+    EMAIL_ADDRESS: "",
+    SIGN_TYPE : "",
+    LEARNER_DIR : "",
+    SIGNATURE_ID: ""
+  };
+
+?>
+    <div class="stdform">
+    <div class="stdform-heading"><?= ( rowNum < 0 ) ? "Create a" : "Edit" ?> Short-Term Learner</div>
+      <form action="#" name="addeditlearnerform" method="post">
+        <input type="hidden" name="LEARNER_DIR" value="<?= learner.LEARNER_DIR ?>" />
+        <input type="hidden" name="SIGNATURE_ID" value="<?= learner.SIGNATURE_ID ?>" />
+        <label for="FORENAME">
+          <span>First Name <span class="required">*</span></span>
+          <input type="text" class="input-field" name="FORENAME" value="<?= learner.FORENAME ?>" />
+        </label>
+        <label for="NICKNAME">
+          <span>Nickname</span>
+          <input type="text" class="input-field" name="NICKNAME" value="<?= learner.NICKNAME ?>" />
+        </label>
+        <label for="SURNAME">
+          <span>Surname <span class="required">*</span></span>
+          <input type="text" class="input-field" name="SURNAME" value="<?= learner.SURNAME ?>" />
+        </label>
+        <label for="LEARNER_ID">
+          <span>Data Number <span class="required">*</span></span>
+          <input type="text" class="input-field" name="LEARNER_ID" value="<?= learner.LEARNER_ID ?>" />
+        </label>
+        <label for="EMAIL_ADDRESS">
+          <span>WLC Email <span class="required">*</span></span>
+          <input type="text" class="input-field" name="EMAIL_ADDRESS" value="<?= learner.EMAIL_ADDRESS ?>" />
+        </label>
+        <label for="SIGN_TYPE">
+          <span>Signature Type<span class="required">*</span></span>
+          <select class="select-field" name="SIGN_TYPE" id="SIGN_TYPE">
+            <? if( learner.SIGN_TYPE == "" ) { ?><option value="">Please Select...<? } ?>
+            <option value="PDF"<?    if( learner.SIGN_TYPE == "PDF"    ) { ?> selected<? } ?>>PDF - Learner Manually Signs each RoS</option>
+            <option value="Stored"<? if( learner.SIGN_TYPE == "Stored" ) { ?> selected<? } ?>>Stored - Learner Signs Once, Signature Stored</option>
+          </select>
+        </label>
+        <label>
+          <span> </span>
+          <input id="saveButton" onclick="addEditLearner();" type="submit" value="<?= (rowNum < 0) ? "Create" : "Edit" ?> Learner" />
+        </label>
+      </form>
+    </div>
+    </div>
+
+    <div id="pleaseWait">
+      <div class="content">
+        <img src="https://drive.google.com/uc?export=view&id=1Ptm483UXSQPjHYEGN0d5SunpyzXgSz4R" height="52" width="84" id="pleaseWaitImg" />
+        <div id="pleaseWaitText" class="text"></div>
+      </div>
+    </div>
+
+    <div id="validation">
+      <ul id="errorMessages"></ul>
+    </div>
+
+    <table class="bottomButtons">
+    <tr>
+      <td id="closeButtonCell" class="show">
+        <input id="closeButton" type="button" value="Close" onclick="google.script.host.close();" />
+      </td>
+    </tr>
+    </table>
+
+    <script>
+      function addEditLearner() {
+        var form = document.forms.namedItem("addeditlearnerform");
+        var rowNum = <?= rowNum ?>;
+        var learnerObj = getLearnerObjectFromFormElements( form );
+
+        if( validateForm( { LEARNER: learnerObj, SEARCH_RESULTS: null } ) ) {
+          setButtonProperties( "saveButton", false );
+          setButtonProperties( "closeButton", false );
+          showPleaseWait( "Checking Master Database" );
+          google.script.run
+            .withSuccessHandler(onSuccess_Search)
+            .withFailureHandler(onFailure)
+            .MasterLearnerSearch( learnerObj.LEARNER_ID, null, null, null );
+        }
+      }
+
+      function onSuccess_Search( learnerObjectArray ) {
+        var form = document.forms.namedItem("addeditlearnerform");
+        var rowNum = <?= rowNum ?>;
+        var learnerObj = getLearnerObjectFromFormElements( form );
+
+        if( validateForm( { LEARNER: learnerObj, SEARCH_RESULTS: learnerObjectArray } ) ) {
+          showPleaseWait( "<?= (rowNum < 0) ? "Creating" : "Updating" ?> Learner record" );
+          google.script.run
+              .withSuccessHandler(onSuccess_addEditLearner)
+              .withFailureHandler(onFailure)
+              .AddOrEditLearnerOnChildLearnerSheet( learnerObj, rowNum );
+          }
+        else {
+          //fail - learner already exists
+          collapsePleaseWait();
+          setButtonProperties( "saveButton", true );
+          setButtonProperties( "closeButton", true );
+        }   
+      }
+
+      function onSuccess_addEditLearner() {
+        google.script.host.close();
+      }
+
+      function onFailure( error ) {
+        hidePleaseWait();
+        alert( getOnFailErrorMessage( error ) );
+        setButtonProperties( "saveButton", true );
+        setButtonProperties( "closeButton", true );
+      }
+
+      function getLearnerObjectFromFormElements( form ) {
+        return {
+          FORENAME    : form.elements.namedItem("FORENAME").value.trim(),
+          NICKNAME    : form.elements.namedItem("NICKNAME").value.trim(),
+          SURNAME     : form.elements.namedItem("SURNAME").value.trim(),
+          LEARNER_ID  : form.elements.namedItem("LEARNER_ID").value.trim(),
+          CATEGORY    : "Short Term",
+          EMAIL_ADDRESS : form.elements.namedItem("EMAIL_ADDRESS").value.trim(),
+          SIGN_TYPE   : document.getElementById("SIGN_TYPE").value.trim(),
+          EXTERNAL_ID_1 : "",
+          EXTERNAL_ID_2 : "",
+          LEARNER_DIR : form.elements.namedItem("LEARNER_DIR").value.trim(),
+          SIGNATURE_ID: form.elements.namedItem("SIGNATURE_ID").value.trim()
+        };
+      }
+
+      function bespokeValidation( obj ) {
+        let emailValidationRegex = new RegExp( "<?= emailValidationRegex ?>" );
+//alert( emailValidationRegex );
+        let errorArray = new Array();
+        if( obj.LEARNER.FORENAME == "" ) {
+          errorArray.push( "Please enter a First Name" );
+        }
+        if( obj.LEARNER.SURNAME == "" ) {
+          errorArray.push( "Please enter a Surname" );
+        }
+        if( obj.LEARNER.LEARNER_ID  == "" ) {
+          errorArray.push( "Please enter a Data Number" );
+        }
+        else if( !isInteger( obj.LEARNER.LEARNER_ID ) ) {
+          errorArray.push( "The Data Number should be a whole number" );
+        }
+        else if( parseInt( obj.LEARNER.LEARNER_ID ) < 99999 ) {
+          errorArray.push( "The Data Number should be greater than 99999" );
+        }
+        if( obj.LEARNER.EMAIL_ADDRESS == "" ) {
+          errorArray.push( "Please enter the Learner's email address" );
+        }
+        else if( !emailValidationRegex.test( obj.LEARNER.EMAIL_ADDRESS ) ) {
+          errorArray.push( "The email address is not a valid WLC email address.\r\n" + 
+                           "It should end in: @college.wlc.ac.uk and contain only valid characters." );
+        }
+        if( obj.LEARNER.SIGN_TYPE == "" ) {
+          errorArray.push( "Please choose a Signature Type" );
+        }
+        if( obj.SEARCH_RESULTS != null && obj.SEARCH_RESULTS.length > 0 ) {
+          errorArray.push( "You cannot create a learner that already exists in the master database.\r\n" + 
+                           "Please close this popup and use the green 'Add Learner' button instead." );
+        }
+        return errorArray;
+      }
+    </script>
+
+    <?!= include('html/html-inc-modal.js') ?>
+
+  </body>
+</html>

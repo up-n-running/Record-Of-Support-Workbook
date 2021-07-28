@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      //GENERAL CONTENT STYLING
+      body { font-family: calibri,arial,sans-serif; margin: 0px;}
+      table { border-collapse: collapse; }
+      th, td { padding: 0; }
+      ul li { padding-bottom: 4px; }
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      // LARGE BOTTOM BUTTON STYLING
+      table.bottomButtons { width: 100% }
+      table.bottomButtons td { width: 125px; }
+      .bottomButtons input[type=submit],
+      .bottomButtons input[type=button] { width: 100%; height: 40px; background: #278845; 
+        font-size: 16px; font-weight: 400; color: #fff;
+        border: none; padding: 8px 15px 8px 15px; 
+        box-shadow: 1px 1px 4px #DADADA; -moz-box-shadow: 1px 1px 4px #DADADA;  -webkit-box-shadow: 1px 1px 4px #DADADA;
+        border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px;
+      }
+      .bottomButtons input[type=submit]:hover,
+      .bottomButtons input[type=button]:hover { background: #EF5500; color: #fff; }
+
+      .bottomButtons input.noclick[type=submit],
+      .bottomButtons input.noclick[type=button],
+      .bottomButtons button.noclick { background-color: #BBBBBB; }   
+
+      table.bottomButtons td { display: none; }     
+      table.bottomButtons td.show { display: inline-block; }
+
+      //LARGE ALERT TEXT FORMATTING
+      .success { color: #006600; } 
+      .success a { color: #0000cc; text-decoration: underline; }
+      .success a:hover { color: #990099; }
+      .success a:visited { color: #0000cc; }
+      .neutral { color: #cc6600; }
+      .failure { color: #800000; }
+
+      //PLEASE WAIT SECTION STYLING
+      #pleaseWait {height: 72px; display: block;}
+      #pleaseWait.collapse {display: none;}
+      #pleaseWait div.content {height: 52px; display: none; text-align: center;}
+      #pleaseWait.show div.content{ width: 100%; display: inline-block; }
+      #pleaseWaitText {
+        padding-top: 17px;
+        display: inline-block;
+        height: 100%;
+        vertical-align: top;
+        font-size: 14px;
+        color: #979797;
+      }
+    </style>
+
+    <style>
+      //FORM STYLING
+      .stdform{
+        max-width: 700px;
+        padding: 10px 0px 5px 0px;
+        font-size: 13px;
+      }
+      .stdform-heading{
+        font-weight: bold;
+        border-bottom: 2px solid #ddd;
+        margin-bottom: 20px;
+        font-size: 15px;
+        padding-bottom: 3px;
+      }
+      .stdform label{
+        display: block;
+        margin: 0px 0px 15px 0px;
+      }
+      .stdform label > span{
+        width: 100px;
+        font-weight: bold;
+        float: left;
+        padding-top: 8px;
+        padding-right: 5px;
+      }
+      .stdform span.required{
+        color:red;
+      }
+      .stdform .tel-number-field{
+        width: 40px;
+        text-align: center;
+      }
+      .stdform input.input-field, .stdform .select-field{
+        width: 48%;	
+      }
+      .stdform input.input-field, 
+      .stdform .tel-number-field, 
+      .stdform .textarea-field, 
+      .stdform .select-field{
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        border: 1px solid #C2C2C2;
+        box-shadow: 1px 1px 4px #EBEBEB;
+        -moz-box-shadow: 1px 1px 4px #EBEBEB;
+        -webkit-box-shadow: 1px 1px 4px #EBEBEB;
+        border-radius: 3px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        padding: 7px;
+        outline: none;
+      }
+      .stdform .input-field:focus, 
+      .stdform .tel-number-field:focus, 
+      .stdform .textarea-field:focus,  
+      .stdform .select-field:focus{
+        border: 1px solid #0C0;
+      }
+      .stdform .textarea-field{
+        height:100px;
+        width: 55%;
+      }
+      .stdform input[type=submit],
+      .stdform input[type=button]{
+        border: none;
+        padding: 8px 15px 8px 15px;
+        background: #278845;
+        color: #fff;
+        box-shadow: 1px 1px 4px #DADADA;
+        -moz-box-shadow: 1px 1px 4px #DADADA;
+        -webkit-box-shadow: 1px 1px 4px #DADADA;
+        border-radius: 3px;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+      }
+      .stdform input[type=submit]:hover,
+      .stdform input[type=button]:hover{
+        background: #EF5500;
+        color: #fff;
+      }
+      .stdform input[type=submit].noclick,
+      .stdform input[type=button].noclick
+      .stdform button.noclick { background-color: #BBBBBB; }  
+
+      #errorMessages {
+        //display: none;
+        font-size: 14px;
+        list-style-type: disc;
+        margin: 0 0 10px 0px;
+        padding: 2px 4px 2px 14px;
+        color: #B94A48;
+        background-color: #F2DEDE;
+        border: 1px solid #EED3D7;
+        border-radius: 3px;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+      #validation {min-height: 72px; display: none; background-color: purple;}
+      #validation.show {display: block;}
+    </style>
+    <style>
+      #targetResults { min-height: 105px; display: none;} 
+      #searchResults.show { display: block; }
+      .stdform label span { width: 15px; }
+      .stdform input.input-field {width: 20px; margin-top: 1px; }
+      .stdform label > span { padding: 1px 0px 0px 0px; }
+      .stdform label { margin: 0px 0px 5px 0px; }
+}
+    </style>
+  </head>
+  <body>
+
+    <div class="stdform">
+    <div class="stdform-heading">Build your Targets Text by ticking the checkboxes then adding your own extra additional text</div>
+      <form action="#" name="targetbuilder" method="post">
+        <label for="target1">
+          <span>1</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target1" value="Recognise when the teacher is giving oral instructions" />
+          Recognise when the teacher is giving oral instructions
+        </label>
+        <label for="target2">
+          <span>2</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target2" value="Stop other activities and concentrate during oral instructions" />
+          Stop other activities and concentrate during oral instructions
+        </label>
+        <label for="target3">
+          <span>3</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target3" value="Identify the keywords in oral Instructions" />
+          Identify the keywords in oral Instructions
+        </label>
+        <label for="target4">
+          <span>4</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target4" value="Identify the individual steps in complex oral Instructions" />
+          Identify the individual steps in complex oral Instructions
+        </label>
+        <label for="target5">
+          <span>5</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target5" value="Identify the sequence in complex instructions" />
+          Identify the sequence in complex instructions
+        </label>
+        <label for="target6">
+          <span>6</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target6" value="Recognise how oral instructions relate to paper resources" />
+          Recognise how oral instructions relate to paper resources
+        </label>
+        <label for="target7">
+          <span>7</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target7" value="Recognise how oral instructions relate to online resources" />
+          Recognise how oral instructions relate to online resources
+        </label>
+        <label for="target8">
+          <span>8</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target8" value="Check own understanding of oral instructions effectively" />
+          Check own understanding of oral instructions effectively
+        </label>
+        <label for="target9">
+          <span>9</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target9" value="Follow oral instructions" />
+          Follow oral instructions
+        </label>
+        <label for="target10">
+          <span>10</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target10" value="Find written instructions on a page" />
+          Find written instructions on a page
+        </label>
+        <label for="target11">
+          <span>11</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target11" value="Find written instructions on the screen" />
+          Find written instructions on the screen
+        </label>
+        <label for="target12">
+          <span>12</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target12" value="Find written instructions on the board" />
+          Find written instructions on the board
+        </label>
+        <label for="target13">
+          <span>13</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target13" value="Identify the keywords in written instructions" />
+          Identify the keywords in written instructions
+        </label>
+        <label for="target14">
+          <span>14</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target14" value="Identify the individual steps in complex written Instructions" />
+          Identify the individual steps in complex written Instructions
+        </label>
+        <label for="target15">
+          <span>15</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target15" value="Identify the sequence in complex written instructions" />
+          Identify the sequence in complex written instructions
+        </label>
+        <label for="target16">
+          <span>16</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target16" value="Check own understanding of written instructions effectively" />
+          Check own understanding of written instructions effectively
+        </label>
+        <label for="target17">
+          <span>17</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target17" value="Follow written instructions" />
+          Follow written instructions
+        </label>
+        <label for="target18">
+          <span>18</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target18" value="Check completed task against the instructions" />
+          Check completed task against the instructions
+        </label>
+        <label for="target19">
+          <span>19</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target19" value="Use alphabetical order to find a word in a dictionary" />
+          Use alphabetical order to find a word in a dictionary
+        </label>
+        <label for="target20">
+          <span>20</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target20" value="Use alphabetical order to find an item in an index" />
+          Use alphabetical order to find an item in an index
+        </label>
+        <label for="target21">
+          <span>21</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target21" value="Use alphabetical order to write down a list" />
+          Use alphabetical order to write down a list
+        </label>
+        <label for="target22">
+          <span>22</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target22" value="Use alphabetical order to record vocab in a notebook" />
+          Use alphabetical order to record vocab in a notebook
+        </label>
+        <label for="target23">
+          <span>23</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target23" value="Use the date correctly in written work" />
+          Use the date correctly in written work
+        </label>
+        <label for="target24">
+          <span>24</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target24" value="Use date order to organise work" />
+          Use date order to organise work
+        </label>
+        <label for="target25">
+          <span>25</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target25" value="Use date order to find notes" />
+          Use date order to find notes
+        </label>
+        <label for="target26">
+          <span>26</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target26" value="Take notes from a written source by writing down the topic, source and the key words & statements" />
+          Take notes from a written source by writing down the topic, source and the key words & statements
+        </label>
+        <label for="target27">
+          <span>27</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target27" value="Take notes from an oral presentation by writing down the topic, source and the key words & statements" />
+          Take notes from an oral presentation by writing down the topic, source and the key words & statements
+        </label>
+        <label for="target28">
+          <span>28</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target28" value="Organise notes effectively using a graphic system (eg spider-gram)" />
+          Organise notes effectively using a graphic system (eg spider-gram)
+        </label>
+        <label for="target29">
+          <span>29</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target29" value="Organise own work for specific purposes (eg lists, notes, emails, letters & reports)" />
+          Organise own work for specific purposes (eg lists, notes, emails, letters & reports)
+        </label>
+        <label for="target30">
+          <span>30</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target30" value="Organise belongings effectively to have everything needed for a lesson" />
+          Organise belongings effectively to have everything needed for a lesson
+        </label>
+        <label for="target31">
+          <span>31</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target31" value="Organise workspace effectively to work co-operatively in the classroom" />
+          Organise workspace effectively to work co-operatively in the classroom
+        </label>
+        <label for="target32">
+          <span>32</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target32" value="Take turns effectively in pair/group activities" />
+          Take turns effectively in pair/group activities
+        </label>
+        <label for="target33">
+          <span>33</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target33" value="Recognise and avoid plagiarism" />
+          Recognise and avoid plagiarism
+        </label>
+        <label for="target34">
+          <span>34</span>
+          <input type="checkbox" class="input-field" onclick="return upd();" name="target34" value="Select appropriate sources of information (on paper, in books, in the learning centre or online)" />
+          Select appropriate sources of information (on paper, in books, in the learning centre or online)
+        </label>
+        <label for="target34">
+          <span>&nbsp;</span>
+          &nbsp;&nbsp;<b>Enter your own extra targets here, each on a new line:</b><br />
+          &nbsp;&nbsp;<textarea id="extraText" name="extraText" rows="4" style="width: 80%"></textarea>
+        </label>
+        <hr style="margin-top: 20px;"/><br />
+        <label>
+          <span> </span>
+          <input id="clipboardButton" onclick="copyToClipboardClick();" type="submit" value="Copy to Clipboard" />
+        </label>
+      </form>
+    </div>
+    </div>
+    <p id="resultText" style="padding-left: 18px; padding-right: 15px; margin-top: 2px; font-size:14px; color: #737373">Your target text preview will appear here</p>
+    <hr style="margin-top: 10px;"/><br />
+    
+
+    <table class="bottomButtons">
+    <tr>
+      <td id="closeButtonCell" class="show">
+        <input id="closeButton" class="button-basic show" type="button" value="Close" onclick="google.script.host.close();" />
+      </td>
+    </tr>
+    </table>
+
+    <script>
+      var searchForm = document.forms.namedItem("targetbuilder");
+      var extraText = searchForm.elements.namedItem("extraText");
+      var resultTextPara = document.getElementById( "resultText" );
+      var copyToClipboardButton = document.getElementById( "clipboardButton" );
+
+      function upd() {
+
+        let targetNo = 1;
+        let fullText = "";
+        let cb = searchForm.elements.namedItem("target"+targetNo);
+
+        while( cb ) {
+          if( cb.checked ) {
+            fullText += ( fullText == "" ) ? "" : " / ";
+            fullText += cb.value;
+          }
+          targetNo++;
+          cb = searchForm.elements.namedItem("target"+targetNo);
+        }
+
+        if( extraText.value.trim() != "" ) {
+          fullText += ( fullText == "" ) ? "" : " / ";
+          fullText += extraText.value.trim().replace(/(\r\n|\n|\r)/gm, " / "); //remove line breaks
+        }
+
+        resultTextPara.innerText = fullText;
+
+        if( copyToClipboardButton.value != "Copy to Clipboard" ) {
+          copyToClipboardButton.value = "Copy to Clipboard";
+        }
+
+        return true;
+      }
+      var area = extraText;
+      if (area.addEventListener) {
+        area.addEventListener('input', function() {
+          return upd();
+        }, false);
+      } else if (area.attachEvent) {
+        area.attachEvent('onpropertychange', function() {
+          return upd();
+        });
+      }
+
+      function copyToClipboardClick() {
+        if( copyToClipboard( resultTextPara.innerText ) ) {
+          copyToClipboardButton.value = "COPIED";
+        }
+      }
+    </script>
+    <script>
+      function setButtonProperties( buttonId, setEnabled, setVisible ) {
+        let buttonElem = document.getElementById( buttonId );
+        if( setEnabled === true ) { buttonElem.disabled = false; buttonElem.classList.remove('noclick'); }
+        else if( setEnabled === false ) { buttonElem.disabled = true; buttonElem.classList.add('noclick'); }
+        if( setVisible === true  ) { document.getElementById( buttonId+"Cell" ).classList.add('show'); }
+        else if( setVisible === false  ) { document.getElementById( buttonId+"Cell" ).classList.remove('show'); }
+      }
+      function showPleaseWait( pleaseWaitText ) {
+        document.getElementById( "pleaseWaitText" ).innerHTML = pleaseWaitText;
+        document.getElementById( "pleaseWait" ).classList.remove( "collapse" );
+        document.getElementById( "pleaseWait" ).classList.add( "show" );
+      }
+      function hidePleaseWait() { document.getElementById( "pleaseWait" ).classList.remove( "show" ); }
+      function collapsePleaseWait() { document.getElementById( "pleaseWait" ).classList.add( "collapse" ); }
+      function getOnFailErrorMessage( error ) {
+        let errorFeedbackString = "This action failed for an unknown reason.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to inform them\n\nError Message:\n" + error;
+        if( (typeof error).toLowerCase() == 'string' && error.includes("PERMISSION_DENIED") ) {
+          errorFeedbackString = "This action failed because it did not recognise the logged in user\n\nThe most common cause of this issue is being logged in to more than one google account in the same browser\n\nDid the person using the computer before you not log out of the PC?\nDo you have your personal emails open in the same browser?\n\nThis issue only happens in these popup windows on not on the main workbook.\n\nTry using another browser, or 'Incognito Mode' (sometimes called 'Private Browsing Mode') and this should resolve your issue.\n\nOr email support if these things do not work.";
+        }
+        return errorFeedbackString;
+      }
+    </script>    
+    <script>
+      function copyToClipboard(text) {
+        if (window.clipboardData && window.clipboardData.setData) {
+            // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+            return clipboardData.setData("Text", text);
+
+        }
+        else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            var textarea = document.createElement("textarea");
+            textarea.textContent = text;
+            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            }
+            catch (ex) {
+                console.warn("Copy to clipboard failed.", ex);
+                return false;
+            }
+            finally {
+                document.body.removeChild(textarea);
+            }
+        }
+      }
+    </script>
+  </body>
+</html>

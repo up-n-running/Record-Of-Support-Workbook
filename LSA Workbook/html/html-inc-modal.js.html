@@ -1,0 +1,67 @@
+<script>
+  function setButtonProperties( buttonId, setEnabled, setVisible ) {
+    let buttonElem = document.getElementById( buttonId );
+    if( setEnabled === true ) { buttonElem.disabled = false; buttonElem.classList.remove('noclick'); }
+    else if( setEnabled === false ) { buttonElem.disabled = true; buttonElem.classList.add('noclick'); }
+    if( setVisible === true  ) { document.getElementById( buttonId+"Cell" ).classList.add('show'); }
+    else if( setVisible === false  ) { document.getElementById( buttonId+"Cell" ).classList.remove('show'); }
+  }
+  function showPleaseWait( pleaseWaitText ) {
+    document.getElementById( "pleaseWaitText" ).innerHTML = pleaseWaitText;
+    document.getElementById( "pleaseWait" ).classList.remove( "collapse" );
+    document.getElementById( "pleaseWait" ).classList.add( "show" );
+  }
+  function hidePleaseWait() { document.getElementById( "pleaseWait" ).classList.remove( "show" ); }
+  function collapsePleaseWait() { document.getElementById( "pleaseWait" ).classList.add( "collapse" ); }
+
+  function getOnFailErrorMessage( error, introTextOverride ) {
+    let introText = ( ( introTextOverride )? introTextOverride : "This action failed" ) + " ";
+    let errorFeedbackString = introText + "for an unknown reason.\n\nPlease use the [LSA Menu] at the top then go to [Help & Support] > [Email Support] to ask them to inform them\n\nError Message:\n" + error;
+    if( (typeof error).toLowerCase() == 'string' && error.includes("PERMISSION_DENIED") ) {
+      errorFeedbackString = introText + "because it did not recognise the logged in user\n\nThe most common cause of this issue is being logged in to more than one google account in the same browser.\n\nDo you have your personal emails open in the same browser perhaps?\n\nPlease use a seperate browser window for your personal emails and other google accounts.\n\nIf you're not sure how to do this then using another browser should work, as should using incognito mode, private browsing, or just log out of all other accounts";
+    }
+    return errorFeedbackString;
+  }
+
+  function loggedInUsersCheck() {
+    google.script.run
+        .withSuccessHandler(onSuccess_loggedInUsersCheck)
+        .withFailureHandler(onFailure_loggedInUsersCheck)
+        .modalLoggedInUsersCheck();
+  }
+  function onSuccess_loggedInUsersCheck( testResult ) {
+    if( !testResult ) { onFailure_loggedInUsersCheck( "PERMISSION_DENIED" ); }
+    else { 
+      var plsWaitImg = document.getElementById("pleaseWaitImg");
+      var isLoaded = plsWaitImg.complete && plsWaitImg.naturalHeight !== 0;
+      if( !isLoaded ) {
+        alert( getOnFailErrorMessage( "PERMISSION_DENIED", "It looks like this popup may not work correctly as the 'Please Wait' image could not load..." ) );
+      }
+    }
+  }
+  function onFailure_loggedInUsersCheck( error ) {
+    alert( getOnFailErrorMessage( "PERMISSION_DENIED", "It looks like this popup may not work correctly" ) );
+  }
+</script> 
+
+<script>
+  function validateForm( obj ) {
+    let errorArray = bespokeValidation( obj );
+    let validationDiv = document.getElementById( "validation" );
+    if( errorArray.length == 0 ) { validationDiv.classList.remove( "show" ); return true; }
+    let ul = document.getElementById( "errorMessages" );
+    ul.innerHTML = "";
+    for( let i=0; i < errorArray.length; i++ ) {
+      let li = document.createElement("li")
+      li.appendChild(document.createTextNode(errorArray[i]));
+      ul.appendChild(li);
+    }
+    validationDiv.classList.add( "show" );
+    collapsePleaseWait();
+    return false;
+  }
+  function isInteger(str) {
+    let n = Math.floor(Number(str));
+    return n !== Infinity && String(n) === str && n >= 0;
+  }
+</script>
