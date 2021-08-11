@@ -4,7 +4,7 @@ Google Sheets GoogleAppsScript application For Teaching Assistants and Learning 
 Relies on Google Sheets files to be shared with you, contact me for details
 
 # Video - Introductory Tutorial Video
-**If you have an understandinf of Learning Support concepts and want to know more about the system, this video is for you:**
+**If you have an understanding of Further Education Learning Support concepts and want to know more about the system, this video is for you:**
 
 [<img src="https://github.com/up-n-running/Record-Of-Support-Workbook/blob/main/Screenshots/VideoThumbnail.png" height="400">](https://youtu.be/3QJ2NTbpTVQ)\
 
